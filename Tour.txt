@@ -1,0 +1,77 @@
+import java.util.Scanner;
+import java.util.Set;
+import java.util.concurrent.TimeUnit;
+
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.firefox.FirefoxDriver;
+import org.openqa.selenium.support.ui.Select;
+public class Tour {
+	static WebDriver driver;
+
+	public static void launchBrowser() {
+
+		Scanner sc = new Scanner(System.in);
+		System.out.println("Enter the browser : Chrome or Firefox");
+		String browser = sc.next();
+		sc.close();
+		if (browser.contains("chrome")) {
+			driver = new ChromeDriver();
+		} 
+		else {
+			driver = new FirefoxDriver();
+		}
+		driver.manage().window().maximize();
+		driver.manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS);
+	}
+	public static void openWebsite(String s) {
+		driver.get(s);
+	}
+	public static void navigateToHome() throws InterruptedException {
+		Thread.sleep(3000);
+		driver.findElement(By.xpath("//div[@data-cy='outsideModal']")).click();
+	}
+	public static void bookAtrip() {
+		driver.findElement(By.xpath("//li[@data-cy='menu_Holidays']")).click();
+		driver.findElement(By.xpath("//span[contains(text(),'Destinations')]")).click();
+		driver.findElement(By.xpath("//li[contains(text(),'International')]")).click();
+		driver.findElement(By.xpath("(//a[contains(text(),'Maldives')])[1]")).click();
+		String handle = driver.getWindowHandle();
+		Set<String> handles=driver.getWindowHandles();
+		for(String actual: handles) {
+			if(!actual.equalsIgnoreCase(handle)) {
+				driver.switchTo().window(actual);
+				
+			}
+		}
+		Select obj = new Select(driver.findElement(By.cssSelector("span#suitableForSection")));
+		obj.selectByVisibleText("Couples");
+		driver.findElement(By.xpath("(//div[@class='packageNameRow'])[1]")).click();
+		Set<String> handles1=driver.getWindowHandles();
+		for(String actual: handles1) {
+			if(!actual.equalsIgnoreCase(handle)) {
+				driver.switchTo().window(actual);
+				
+			}
+			
+		}
+		if(driver.findElement(By.xpath("//a[contains(text(),'Day Plan')]")).isDisplayed()){
+			System.out.println("Pass");
+		}
+		else
+			System.out.println("Fail");
+	}
+	public static void close() {
+		driver.quit();
+	}
+	public static void main(String[] args) throws InterruptedException {
+		String url = "https://www.makemytrip.com/";
+		launchBrowser();
+		openWebsite(url);
+		navigateToHome();
+		bookAtrip();
+		close();
+		}
+
+}
